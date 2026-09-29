@@ -1,0 +1,50 @@
+logLevel: info
+logDestinations: [stdout, file]
+logFile: /recordings/mediamtx.log
+
+authMethod: internal
+authInternalUsers:
+  - user: __PUBLISH_USER__
+    pass: __PUBLISH_PASSWORD__
+    permissions:
+      - action: publish
+        path: __DEVICE_PATH__
+  - user: any
+    ips: ["172.16.0.0/12"]
+    permissions:
+      - action: read
+        path: __DEVICE_PATH__
+      - action: playback
+        path: __DEVICE_PATH__
+
+rtsp: true
+rtspTransports: [tcp]
+rtspEncryption: strict
+rtspsAddress: :8322
+rtspServerKey: /caddy-data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/__INGEST_DOMAIN__/__INGEST_DOMAIN__.key
+rtspServerCert: /caddy-data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/__INGEST_DOMAIN__/__INGEST_DOMAIN__.crt
+
+rtmp: false
+srt: false
+webrtc: false
+
+hls: true
+hlsAddress: :8888
+hlsAlwaysRemux: true
+hlsAllowOrigins: ["http://__API_DOMAIN__"]
+
+playback: true
+playbackAddress: :9996
+playbackAllowOrigins: ["http://__API_DOMAIN__"]
+
+pathDefaults:
+  source: publisher
+  record: true
+  recordPath: /recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+  recordFormat: fmp4
+  recordPartDuration: 1s
+  recordSegmentDuration: 1h
+  recordDeleteAfter: __RETENTION_DAYS__d
+
+paths:
+  __DEVICE_PATH__:

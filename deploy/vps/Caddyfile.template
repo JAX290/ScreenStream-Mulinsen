@@ -1,0 +1,46 @@
+{
+    email __ACME_EMAIL__
+    acme_ca https://acme-v02.api.letsencrypt.org/directory
+}
+
+__INGEST_DOMAIN__ {
+    respond "ScreenStream ingest endpoint is ready" 200
+}
+
+http://__API_DOMAIN__ {
+    route {
+        @outside_tailnet not remote_ip 100.64.0.0/10 fd7a:115c:a1e0::/48
+        respond @outside_tailnet "Only Tailscale devices are allowed" 403
+
+        handle /download-control* {
+            reverse_proxy download-gate:8080
+        }
+
+        handle_path /live/* {
+            reverse_proxy mediamtx:8888
+        }
+
+        handle_path /recordings/* {
+            reverse_proxy mediamtx:9996
+        }
+
+        handle /health {
+            header Content-Type application/json
+            respond `{"status":"ok","service":"mulinsen-screenstream"}` 200
+        }
+
+        root * /srv/site
+        file_server
+    }
+}
+
+http://__VIEW_DOMAIN__ {
+    route {
+        # APK 下载页可从公网访问，但下载闸门默认关闭。
+        handle /apk1* {
+            reverse_proxy download-gate:8080
+        }
+
+        respond "Only the temporary APK download endpoint is available on this domain" 403
+    }
+}

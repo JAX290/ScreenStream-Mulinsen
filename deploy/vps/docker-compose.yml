@@ -1,0 +1,41 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./site:/srv/site:ro
+      - ./apk1:/srv/apk1:ro
+      - ./data/caddy:/data
+      - ./data/caddy-config:/config
+    networks: [screenstream]
+
+  download-gate:
+    build: ./download-gate
+    restart: unless-stopped
+    environment:
+      APK_ROOT: /srv/apk1
+      STATE_FILE: /data/state.json
+      ADMIN_ORIGIN: http://api.mulinsen.win
+    volumes:
+      - ./apk1:/srv/apk1:ro
+      - ./data/download-gate:/data
+    networks: [screenstream]
+
+  mediamtx:
+    image: bluenviron/mediamtx:1.21.1
+    restart: unless-stopped
+    ports:
+      - "8322:8322/tcp"
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
+      - ./recordings:/recordings
+      - ./data/caddy:/caddy-data:ro
+    networks: [screenstream]
+
+networks:
+  screenstream:
+    driver: bridge
