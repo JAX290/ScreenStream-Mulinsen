@@ -35,7 +35,15 @@ VPS 详细步骤见 [deploy/vps/README.md](deploy/vps/README.md)。
 
 ## 一键上传并部署 VPS
 
-Windows 电脑可以运行：
+最简单的方法是在 VPS 的 root 终端粘贴：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/JAX290/ScreenStream-Mulinsen/main/deploy/vps/bootstrap.sh | sudo bash
+```
+
+它会下载 GitHub 上的最新版代码、部署服务并复制 APK。该方式要求 GitHub 仓库公开；私有仓库需要额外配置访问令牌，不适合新手。
+
+如果项目已经在 Windows 电脑上，也可以运行：
 
 ```powershell
 .\scripts\deploy-to-vps.ps1
